@@ -6,12 +6,11 @@
 
 //set time values;
 int h, m, s;
-// int SDA = A4;
-// int SCL = A5;
 
 // keyboard input
 char input;
 
+//value1
 float evening = 918.00;
 float eveningEnd = 919.00;
 
@@ -24,11 +23,11 @@ int releyCH1 = A3;
 //PROTOTYPES ******************************************
 
 void lcdTime();
-float getTime();
+int getTime();
 
 void openSolenoid();
 void closeSolenid();
-void solenoidTimer(int tStart, int tEnd);
+void timeForSolenoid();
 
 void menu2();
 void updateMenu();
@@ -69,6 +68,7 @@ Keypad inputKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS)
 //******************************************************
 
 //TIME**************************************************
+  float tim; //gloobal variable used by almost all functions
   Time t;
 
 // Init the DS3231 using the hardware interface
@@ -121,6 +121,7 @@ if(input != NO_KEY){
 
   if (input == '5')
     subMenu();
+  
   }
 
   if(input == 'A')
@@ -128,99 +129,46 @@ if(input != NO_KEY){
 
   if(input == 'D')
     updateMenu();
-
-// For testing
-    if(input == 'C')
-    lcd.print(getTime());
   
-  // check time and open solenoid
-  solenoidTimer(evening, eveningEnd);
 }
 //###################################################################################################################
 
 //FUNCTIONS
 
 //Geting time from main then setting it on display
-float getTime(){
+int getTime(){
     t = rtc.getTime();  //get time then divede to hour, min and sec
  //add hour, min and sec to one value for easy check
-//  example time: 22:32:15 will be 223215
- return ((t.hour * 100) + t.min ) + (float)t.sec / 100;
+ return t.hour * 100 + t.min + ((int)t.sec / 100);
 }
 
 void  lcdTime(){
   t = rtc.getTime();
 
-  float start = getTime();
-  float end = start + 0.02;
+
+  float start = t.sec;
+  float end = start + (float)10;
   // lcd.print(start);
-  // lcd.print(" ");
+  // lcd.setCursor(0, 1);
   // lcd.print(end);
-  // delay(1000);
+  // delay(500);
 
   //printin time on lcd
   while(start <= end){
     lcd.clear();
-    lcd.setCursor(4, 1);
+    lcd.setCursor(4, 0);
     lcd.print(t.hour);
     lcd.print(":");
     lcd.print(t.min);
     lcd.print(":");
     lcd.print((int)t.sec);
-    start = getTime();
-    delay(400);
+    start = t.sec;
+    delay(200);
     lcd.clear();
   }
 }
 
-
-//call to open solenoid
-void openSolenoid()
-{
-  digitalWrite(releyCH1, LOW);
-}
-//call to close solenoid
-void closeSolenid()
-{
-  digitalWrite(releyCH1, HIGH);
-}
-
-//checking time for sceldueld solenoid opening
-void solenoidTimer(float tStart, float tEnd)
-{
-  float tim = getTime();
-  if(tim >= tStart && tim < tEnd)
-  {
-    while(tim <= tEnd)
-    {
-      tim = getTime();
-      lcd.setCursor(0, 0);
-      lcd.print("S");
-      lcd.print(tStart);
-      lcd.print("E");
-      lcd.print(tEnd);
-    
-      lcdTime();
-      openSolenoid();
-     
-    }
-    closeSolenid();
-  }
-//  else if (tim >= morning && tim < morningEnd)
-//  {
-//    while(tim <= morningEnd)
-//    {
-//       lcdTime();
-//      openSolenoid();
-//     
-//    }
-//    closeSolenid();
-//  }
-  closeSolenid(); //default action
-  }
-
   void setTimeInDH(int h, int m, int s){
-
     rtc.setTime(h, m, s);
   }
 
@@ -299,40 +247,18 @@ void setInterval(){
 
 void manualOpen(){
   defaultClear();
-  lcd.print("Valve open10min?" );
-  lcd.setCursor(2, 1);
-  lcd.print("YES=1 NO=3");
-  
-
-  input = inputKeypad.waitForKey();
-    
-
-  if (input == '1'){
-    float start = getTime();
-  // 10min
-    float end = start + 10;
-    solenoidTimer(start, end);
-    updateMenu();
-  }
-  else updateMenu();
-  manualOpen();
+  lcd.print("Valve start: " );
 }
 
 void about(){
   defaultClear();
   lcd.print("Boris Blagojevic");
   lcd.setCursor(0, 1);
-  lcd.print("Vib+387644151370");
-
-  while (input != '3'){
-    input = inputKeypad.getKey();
-  }
-  if (input == '3'){
-      updateMenu();
-    }
+  lcd.print('Vib+387644151370');
 }
 
 void defaultClear(){
   lcd.clear();
   lcd.setCursor(0, 0);
 }
+
