@@ -3,7 +3,7 @@
 First version of AGWS was made in 2020.
 
 ## Videos, images, plans:
-[MEGAnz](https://mega.nz/folder/xmYEzJhC#tvKvnMhW7jHWav86G3gziQ)
+[MEGANZ cloud](https://mega.nz/folder/xmYEzJhC#tvKvnMhW7jHWav86G3gziQ)
 
 TODO:
   - MENU (DONE)
