@@ -11,7 +11,7 @@ TODO:
   - SUBMENUS (DONE)
   - MANUALLY OPEN VALVE (DONE)
   - ABOUT (DONE)
-  - SETING AND STORING CLOCK TIME (TODO)
-  - SETING AND STORING INTERVAL TIME (when to open\close a valve). (TODO)
+  - SETING AND STORING CLOCK TIME (TODO, for now, time is set in source code)
+  - SETING AND STORING INTERVAL TIME (when to open\close a valve). (TODO, interval is set in source code)
 
 
