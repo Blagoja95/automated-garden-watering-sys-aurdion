@@ -12,8 +12,9 @@ int h, m, s;
 // keyboard input
 char input;
 
-float evening = 918.00;
-float eveningEnd = 919.00;
+// default time
+float evening = 700.00;
+float eveningEnd = 900.00;
 
 //temporery value for manual opening of solenoid valve
 float temp = 0;
@@ -33,8 +34,10 @@ void solenoidTimer(int tStart, int tEnd);
 void menu2();
 void updateMenu();
 void subMenu();
+void exitSubMenu();
 
 void setInterval();
+void setClock();
 void manualOpen();
 void about();
 void defaultClear();
@@ -97,7 +100,6 @@ void loop(){
 
  //Call on first run then add comments on secund run
   // setTimeInDH(h, m, s);
-//  setTimeInDH(9, 16, 40);
   
 //Show time on lcd
 // lcdTime();
@@ -220,7 +222,6 @@ void solenoidTimer(float tStart, float tEnd)
   }
 
   void setTimeInDH(int h, int m, int s){
-
     rtc.setTime(h, m, s);
   }
 
@@ -275,7 +276,7 @@ void solenoidTimer(float tStart, float tEnd)
 void subMenu(){
   switch (menu){
     case 1:
-    // setTimeInDH(h, m, s);
+   setClock();
     break;
 
     case 2:
@@ -294,7 +295,8 @@ void subMenu(){
 
 void setInterval(){
   defaultClear();
-  lcd.print("Set interval");
+  lcd.print("TO DO");
+exitSubMenu();
 }
 
 void manualOpen(){
@@ -302,10 +304,12 @@ void manualOpen(){
   lcd.print("Valve open10min?" );
   lcd.setCursor(2, 1);
   lcd.print("YES=1 NO=3");
-  
 
+  while(input != '3' || input != '1' ){
   input = inputKeypad.waitForKey();
-    
+}
+
+  Serial.print(input);
 
   if (input == '1'){
     float start = getTime();
@@ -314,7 +318,11 @@ void manualOpen(){
     solenoidTimer(start, end);
     updateMenu();
   }
-  else updateMenu();
+
+  if (input == '3'){
+    updateMenu();
+  }
+  
   manualOpen();
 }
 
@@ -323,16 +331,28 @@ void about(){
   lcd.print("Boris Blagojevic");
   lcd.setCursor(0, 1);
   lcd.print("Vib+387644151370");
+  exitSubMenu();
 
-  while (input != '3'){
-    input = inputKeypad.getKey();
-  }
-  if (input == '3'){
-      updateMenu();
-    }
+}
+
+void setClock(){
+  defaultClear();
+  lcd.print("set clock todo");
+  setTimeInDH(6, 22, 22);
+  exitSubMenu();
 }
 
 void defaultClear(){
   lcd.clear();
   lcd.setCursor(0, 0);
+}
+
+void exitSubMenu(){
+  while (input != 'D'){
+    input = inputKeypad.getKey();
+  }
+  if (input == 'D'){
+      menu = 0;
+      updateMenu();
+    }
 }
