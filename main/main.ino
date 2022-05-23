@@ -41,6 +41,7 @@ void setClock();
 void manualOpen();
 void about();
 void defaultClear();
+void nextValue();
 
 void setTimeInDH(int h, int m, int s);
 //*****************************************************
@@ -199,6 +200,8 @@ void solenoidTimer(float tStart, float tEnd)
       lcd.setCursor(0, 0);
       lcd.print("S");
       lcd.print(tStart);
+
+      lcd.setCursor(1, 0);
       lcd.print("E");
       lcd.print(tEnd);
     
@@ -307,9 +310,9 @@ void manualOpen(){
 
   while(input != '3' || input != '1' ){
   input = inputKeypad.waitForKey();
+  Serial.print(input);
 }
 
-  Serial.print(input);
 
   if (input == '1'){
     float start = getTime();
@@ -337,8 +340,29 @@ void about(){
 
 void setClock(){
   defaultClear();
-  lcd.print("set clock todo");
-  setTimeInDH(6, 22, 22);
+
+// hour
+  lcd.print("Hours: ");
+  h = inputKeypad.waitForKey();
+  lcd.setCursor(1, 0);
+  lcd.print("Time: " + h);
+  nextValue();
+
+// minuts
+  lcd.print("Minuts: ");
+  m = inputKeypad.waitForKey();
+  lcd.setCursor(1, 0);
+  lcd.print("Time: " + m);
+  nextValue();
+  
+  // secunds
+  lcd.print("Secunds: ");
+  m = inputKeypad.waitForKey();
+  lcd.setCursor(1, 0);
+  lcd.print("Time: " + s);
+  nextValue();
+  
+  setTimeInDH(h, m, s);
   exitSubMenu();
 }
 
@@ -355,4 +379,12 @@ void exitSubMenu(){
       menu = 0;
       updateMenu();
     }
+}
+
+void nextValue(){
+while(input != 'B')
+  input = inputKeypad.waitForKey();
+  if(input == 'B'){
+  defaultClear();
+  }
 }

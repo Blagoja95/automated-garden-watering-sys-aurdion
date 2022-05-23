@@ -2,24 +2,16 @@
 #include <Keypad.h>
 #include <DS3231.h>
 //GLOBAL *********************************************
-//time value
-int h;  //HOURS
-int m; //MINS
-int s; //SECUNDS
 
 //value1
-float evening; //Start
-float eveningEnd; //Stop
+float evening = 800; //Start
+float eveningEnd = 1030; //Stop
 
-//value2, used for manual 
-float manualStart;
-float manualEnd;
+int tim; // global value 
 
-
-//temporery value for manual opening of solenoid valve
-float temp = 0;
 //reley output pin
 int releyCH1 = A3;
+
 //*****************************************************
 
 //PROTOTYPES ******************************************
@@ -35,9 +27,6 @@ void timeForScheduledOpenStart(float i);
 void timeForScheduledOpenClose(float i);
 //*****************************************************
 
-//MENU___________________________________________________________________
-int p = 1; //used to remember position in menus
-//***********************************************************************
 
 //LCD **************************************************
 LiquidCrystal lcd(A2, A1, 10, 11, 12, 13);
@@ -65,12 +54,12 @@ Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS
 //******************************************************
 
 //TIME**************************************************
-  float tim; //gloobal variable used by almost all functions
+//  float tim; //gloobal variable used by almost all functions
   Time t;
 
 
 // Init the DS3231 using the hardware interface
-  DS3231  rtc(SDA, SCL);
+  DS3231 rtc(SDA, SCL);
 //******************************************************
 void setup() {
 
@@ -86,140 +75,46 @@ void setup() {
   //TIME
   // Initialize the rtc object
   rtc.begin();
-
+//  Serial.begin(9600);
+  
   //Set on first run then add comments on secund run
- //rtc.setTime(17, 15, 00);
+// rtc.setTime(23, 17, 30);
   //*************************************************
 }
 
 //MAIN_____________________________________________-----------------------____________________________-----------------_____________------------------_________________
 void loop() {
-
-//lcdTime(); //home menu
+lcdTime(); //home menu
 timeForSolenoid();
-
-
-char customKey = customKeypad.getKey();//Read Key data if typed
-  if (customKey){
-    if (customKey == '6')
-    {
-      if(p > 3)
-      {
-        p = 0;
-        
-      }
-      switch(p){
-
-      case 0: //home menu
-      lcdTime();
-      break;
-
-      case 1:
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Zakazano: " + (int)evening);
-      lcd.setCursor(0, 1);
-      lcd.print("Do: " + (int)eveningEnd);
-
-      
-        if(customKey == 'D')
-        {
-          float i;
-          lcd.clear();
-          lcd.setCursor(0, 0);
-          lcd.print("Unesi pocetak:");
-          do
-          {
-            lcd.setCursor(4, 1);
-            customKey = customKeypad.getKey(); //get custom key from keyboard
-            lcd.print(customKey);
-          }
-          while(customKey != 'D');
-          
-          i = customKey; //assign key to new variable
-          
-          timeForScheduledOpenOpen(i);
-
-          lcd.clear();
-          lcd.setCursor(0, 0);
-          lcd.print("Unesi vrijeme: ");
-          do
-          {
-            lcd.setCursor(4, 1);            
-            customKey = customKeypad.getKey(); //get custom key from keyboard
-            lcd.print(customKey);
-          }
-          while(customKey != 'D');
-          
-         timeForScheduledOpenClose(i);
-        }
-        else{
-          delay(2000);
-          p = 0;
-        }
-      break;
-
-      case 2:
-      lcd.clear();
-          lcd.setCursor(0, 0);
-          lcd.print("Menu 3");
-      break;
-
-      case 3:
-      lcd.clear();
-          lcd.setCursor(0, 0);
-          lcd.print("Menu4");
-      break;
-      }
-    }
  }
-}
 //###################################################################################################################
 
 //FUNCTIONS
 
-//This function set automatic opening time for solenoid
-void timeForScheduledOpenOpen(float i)
-{
-  evening = i;
-}
-
-void timeForScheduledOpenClose(float i)
-{
-  eveningEnd = i;
-}
-
-void setTimeLCD(){
-    rtc.setTime(h, m, s);
-}
-
 //Geting time from main then setting it on display
-void   lcdTime(){
+void lcdTime(){
   t = rtc.getTime();  //get time then divede to hour, min and sec
   int a = t.hour; 
   int b = t.min;
-  float c = t.sec;
-
 
  //add hour, min and sec to one value for easy check
- tim = a * 100 + b + (c / 100);
+ tim = a * 100 + b;
 
   //printin time on lcd
-  lcd.setCursor(4, 0);
-  lcd.print(a);
-  lcd.print(":");
-  lcd.print(b);
-  lcd.print(":");
-  lcd.print((int)c);
-  delay(10);
+  lcd.print(rtc.getTimeStr());
+  delay(300);
   lcd.clear();
+
+//  Serial.println(tim);
   //return tim;
 }
+
 //call to open solenoid
 void openSolenoid()
 {
   digitalWrite(releyCH1, LOW);
 }
+
 //call to close solenoid
 void closeSolenid()
 {
@@ -232,7 +127,7 @@ void timeForSolenoid()
   if(tim >= evening && tim < eveningEnd)
   {
    
-    while(tim <= eveningEnd)
+    while(tim < eveningEnd)
     {
        lcdTime();
       openSolenoid();
@@ -242,70 +137,5 @@ void timeForSolenoid()
 
   }
   closeSolenid(); //default action
-  }
-
-  //for manual opening of solenoid valve
-  void manualopen(){
-    manualStart = tim;
-    manualEnd = manualStart + tim;
-  
-    if(manualStart >= manualEnd && manualStart < manualEnd)
-  {
-   
-    while(manualStart <= manualEnd)
-    {
-      lcdTime();
-      lcd.setCursor(2, 1);
-      lcd.print("Kraj: " + (int)manualEnd);
-      openSolenoid();
-     
-    }
-    closeSolenid();
-
-  }
- 
-  closeSolenid(); //default action
-  } 
-  void menu2(){
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Rucno otvori cesm");
-    lcd.setCursor(2, 1);
-
-    char customKey = customKeypad.getKey();//Read Key data if typed
-      if (customKey){
-        if (customKey == '2')
-        {
-          if(temp <= 60)
-          {        
-              temp += 15;
-              lcd.print("Na: " + (int)temp);
-          }
-          else
-          {
-            temp = 0;
-            lcd.print("Na: " + (int)temp);
-          }
-        }
-        else if (customKey == '8')
-        {
-            if (temp > 0)
-            {
-              temp -= 15;
-              lcd.print("Na: " + (int)temp);
-            }
-            else
-            {
-              temp = 60;
-              lcd.print("Na: " + (int)temp);
-            }       
-        }
-        else if (customKey == '5')
-        {
-          manualopen();
-        }
-      }
-      
-    
   }
   

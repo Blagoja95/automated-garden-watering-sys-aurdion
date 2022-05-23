@@ -4,11 +4,11 @@
 //GLOBAL *********************************************
 
 //value1
-float morning = 600.00;
-float morningEnd = 800.00;
+float morning = 800.00;
+float morningEnd = 1000.00;
 
-float evening = 2000.00;
-float eveningEnd = 2200.00;
+// float evening = 2000.00;
+// float eveningEnd = 2200.00;
 
 
 
@@ -76,7 +76,8 @@ void setup() {
   //TIME
   // Initialize the rtc object
   rtc.begin();
-
+  
+Serial.begin(9600); // opens serial port, sets data rate to 9600 bps
   //*************************************************
 }
 
@@ -90,7 +91,9 @@ void loop(){
   int m = 29;
   int s = 5;
 
-  setTimeInDH(h, m, s);*/
+*/
+
+  setTimeInDH(10, 37, 30);
   
 //Show time on lcd
 lcdTime();
@@ -105,11 +108,15 @@ timeForSolenoid();
 
 //Geting time from main then setting it on display
 void  lcdTime(){
-  t = rtc.getTime();  //get time then divede to hour, min and sec
-  int a = t.hour; 
+  t = rtc.getTime();
+  int nTim;
+  int a = t.hour;
   int b = t.min;
-  float c = t.sec;
 
+  nTim = a * 100 + b;
+  
+  tim = nTim;
+}
 
  //add hour, min and sec to one value for easy check
  tim = a * 100 + b + (c / 100);
@@ -121,11 +128,13 @@ void  lcdTime(){
   lcd.print(b);
   lcd.print(":");
   lcd.print((int)c);
-  delay(100);
+  delay(300);
   lcd.clear();
 
+  Serial.println(t.sec);
   //return tim;
 }
+
 //call to open solenoid
 void openSolenoid()
 {
@@ -138,21 +147,20 @@ void closeSolenid()
 }
 
 //checking time for sceldueld solenoid opening
-void timeForSolenoid()
-{
-  if(tim >= evening && tim < eveningEnd)
-  {
+void timeForSolenoid(){
+  // if(tim >= evening && tim < eveningEnd)
+  // {
    
-    while(tim <= eveningEnd)
-    {
-       lcdTime();
-      openSolenoid();
+  //   while(tim <= eveningEnd)
+  //   {
+  //      lcdTime();
+  //     openSolenoid();
      
-    }
-    closeSolenid();
+  //   }
+  //   closeSolenid();
 
-  }
-  else if (tim >= morning && tim < morningEnd)
+  // }
+if (tim >= morning && tim < morningEnd)
   {
     while(tim <= morningEnd)
     {
@@ -166,6 +174,5 @@ void timeForSolenoid()
   }
 
   void setTimeInDH(int h, int m, int s){
-
     rtc.setTime(h, m, s);
   }
